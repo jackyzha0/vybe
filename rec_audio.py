@@ -26,7 +26,7 @@ def main():
     stream = p.open(format=pyaudio.paFloat32,
         channels=CHANNELS,
         rate=RATE,
-        output=True,
+        output=False,
         input=True,
         stream_callback=callback)
     stream.start_stream()
@@ -85,8 +85,8 @@ def callback(in_data, frame_count, time_info, flag):
         for i in range(21):
             left_queue.get()
             right_queue.get()
-    print("left_q",left_queue.qsize())
-    print("right_q",right_queue.qsize())
+    #print("left_q",left_queue.qsize())
+    #print("right_q",right_queue.qsize())
     if left_queue.qsize() and right_queue.qsize() == 63:
         left_feat = features(np.hstack(list(left_queue.queue)),13)
         right_feat = features(np.hstack(list(right_queue.queue)),13)
