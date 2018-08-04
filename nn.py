@@ -7,16 +7,14 @@ import numpy as np
 print('[OK] numpy ')
 import os
 import data_tools
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import specgram
 print('[OK] os ')
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
 config=tf.ConfigProto(allow_soft_placement=True)
-
-dict_unprocessed = data_tools.get_data()
-setsize = len(dict_unprocessed)
-index = np.arange(0,setsize)
 
 ### PARAMETERS ###
 batchsize = 128
@@ -35,14 +33,7 @@ Input Dims: 26 (features) x 147 (time length)
 Output Dims: (num classes)
 """
 
-def minibatch(batchsize):
-    pass
-
-def pickle(path):
-    pass
-
 db,db_size = data_tools.get_data()
-print(db_size)
 sd = 1/np.sqrt(num_features)
 
 X = tf.placeholder(tf.float32,[None,num_features])
@@ -61,7 +52,7 @@ W = tf.Variable(tf.random_normal([n_hidden_units_two,num_classes], mean = 0, std
 b = tf.Variable(tf.random_normal([num_classes], mean = 0, stddev=sd))
 y_ = tf.nn.softmax(tf.matmul(h_2,W) + b)
 
-init = tf.initialize_all_variables()
+init = tf.global_variables_initializer()
 
 cost_function = -tf.reduce_sum(Y * tf.log(y_))
 #optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_function)
@@ -82,7 +73,17 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 #RNN Activations (Sigmoid)
 #Feedforward Activations
 #Thresholding
+index = np.arange(db_size)
+np.random.shuffle(index)
 
+def get_indices(batchsize):
+    global index
+    if index.size < batchsize:
+        index = np.arange(db_size)
+        np.random.shuffle(index)
+    ret = index[:batchsize]
+    index = index[:-batchsize].copy()
+    return ret
 
 ## Training Loop
 cost_history = np.empty(shape=[1],dtype=float)
@@ -90,20 +91,19 @@ y_true, y_pred = None, None
 with tf.Session() as sess:
     sess.run(init)
     for epoch in range(epochs):
-        for
-        #second for loop for mini batching
-        _,cost = sess.run([optimizer,cost_function],feed_dict={X:tr_features,Y:tr_labels})
-        cost_history = np.append(cost_history,cost)
+        for batch in range(int(db_size / batchsize)):
+            indices = get_indices(batchsize)
+            feed = data_tools.next_minibatch(indices,db)
+            print(feed[0].shape,feed[1].shape)
+            _,cost = sess.run([optimizer,cost_function],feed_dict={X: feed[0], Y: feed[1]})
+            cost_history = np.append(cost_history,cost)
 
-    y_pred = sess.run(tf.argmax(y_,1),feed_dict={X: ts_features})
-    y_true = sess.run(tf.argmax(ts_labels,1))
-    print("Test accuracy: ",round(session.run(accuracy,
-    	feed_dict={X: ts_features,Y: ts_labels}),3))
+    #     y_pred = sess.run(tf.argmax(y_,1),feed_dict={X: ts_features})
+    #     y_true = sess.run(tf.argmax(ts_labels,1))
+    # print("Test accuracy: ",round(session.run(accuracy,
+    # 	feed_dict={X: ts_features,Y: ts_labels}),3))
 
 fig = plt.figure(figsize=(10,8))
 plt.plot(cost_history)
 plt.axis([0,training_epochs,0,np.max(cost_history)])
 plt.show()
-
-p,r,f,s = precision_recall_fscore_support(y_true, y_pred, average="micro")
-print "F-Score:", round(f,3)
