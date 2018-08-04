@@ -44,15 +44,15 @@ with tf.device("/device:CPU:0"):
         #M is number of feature maps
 
         #Input (F x T)
-        #Convolution - Zero padding
+        #Convolution - Zero padding (3x3)
         #Non-overlapping Frequency Max Pooling in only Frequency Domain
-        #Convolution - Zero padding
+        #Convolution - Zero padding (3x3)
         #Frequency Max Pooling (F' x M x T)
 
         #Stacking of Feature Maps of (F' x M x T)
         #RNN Activations (Sigmoid)
         #Feedforward Activations
         #Thresholding
-        
+
 
 ### Training Loop
