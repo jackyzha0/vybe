@@ -32,14 +32,25 @@ batchsize = 128
 num_classes = 6
 epochs = 100
 learningrate = 1e-4
+num_features = 26
+n_hidden_units_one = 256
+n_hidden_units_two = 512
 
 ### NN Setup
 """
 Input Dims: 26 (features) x 147 (time length)
-Output Dims: (num classes) x 147 (time length)
+Output Dims: (num classes)
 """
 
-X = tf.placeholder(tf.float32,[None,n_dim])
+def minibatch(batchsize):
+    pass
+
+def pickle(path):
+    pass
+
+
+
+X = tf.placeholder(tf.float32,[None,num_features])
 Y = tf.placeholder(tf.float32,[None,num_classes])
 
 W_1 = tf.Variable(tf.random_normal([n_dim,n_hidden_units_one], mean = 0, stddev=sd))
@@ -51,30 +62,31 @@ mean = 0, stddev=sd))
 b_2 = tf.Variable(tf.random_normal([n_hidden_units_two], mean = 0, stddev=sd))
 h_2 = tf.nn.sigmoid(tf.matmul(h_1,W_2) + b_2)
 
-W = tf.Variable(tf.random_normal([n_hidden_units_two,n_classes], mean = 0, stddev=sd))
-b = tf.Variable(tf.random_normal([n_classes], mean = 0, stddev=sd))
+W = tf.Variable(tf.random_normal([n_hidden_units_two,num_classes], mean = 0, stddev=sd))
+b = tf.Variable(tf.random_normal([num_classes], mean = 0, stddev=sd))
 y_ = tf.nn.softmax(tf.matmul(h_2,W) + b)
 
 init = tf.initialize_all_variables()
 
 cost_function = -tf.reduce_sum(Y * tf.log(y_))
-optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_function)
+#optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_function)
+optimizer = tf.train.RMSPropOptimizer(learning_rate,decay=decay,momentum=momentum,centered=True).minimize(cost_function)
 
 correct_prediction = tf.equal(tf.argmax(y_,1), tf.argmax(Y,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-        #ReLU Activations for all connections
-        #M is number of feature maps
+#ReLU Activations for all connections
+#M is number of feature maps
 
-        #Input (F x T)
-        #Convolution - Zero padding (3x3)
-        #Non-overlapping Frequency Max Pooling in only Frequency Domain
-        #Convolution - Zero padding (3x3)
-        #Frequency Max Pooling (F' x M x T)
+#Input (F x T)
+#Convolution - Zero padding (3x3)
+#Non-overlapping Frequency Max Pooling in only Frequency Domain
+#Convolution - Zero padding (3x3)
+#Frequency Max Pooling (F' x M x T)
 
-        #Stacking of Feature Maps of (F' x M x T)
-        #RNN Activations (Sigmoid)
-        #Feedforward Activations
-        #Thresholding
+#Stacking of Feature Maps of (F' x M x T)
+#RNN Activations (Sigmoid)
+#Feedforward Activations
+#Thresholding
 
 
 ### Training Loop

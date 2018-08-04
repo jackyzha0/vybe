@@ -24,5 +24,3 @@ def features(rawsnd, num, parsePath=False) :
     end = time.time()
     print(end - start)
     return (ft_plus_deltas.T)
-    #print(ft_plus_deltas.T.shape)
-    #return (ft_plus_deltas.T)
