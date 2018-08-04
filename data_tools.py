@@ -1,6 +1,6 @@
-from preprocess.py import features
-
-def get_data(dir):
+from preprocess import features
+import numpy as np
+def get_data():
     """
     Recursively find and return path names of all audio files and their labels
     Return a dictionary in this format
@@ -8,18 +8,13 @@ def get_data(dir):
     ...
     file path : label }
     """
-    pass
+    arr = np.loadtxt("/home/jacky/2kx/vybe/data/ESC-50-master/meta/esc50.csv",dtype=str,delimiter=',',skiprows=1)
+    return arr
 
 def get_wav(path):
     """
     check if pickle file with same name exists, else call features()
     then pickle wav and return
-    """
-    pass
-
-def get_label(filepath):
-    """
-    Given a wav file, return its label
     """
     pass
 
@@ -119,3 +114,5 @@ def pad_sequences(sequences, maxlen=None, test=False,dtype=np.float32,
     if input_noise and not test:
         x += np.random.normal(scale=noise_magnitude,size=x.shape)
     return x, lengths
+
+print(get_data())
