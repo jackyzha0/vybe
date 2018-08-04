@@ -1,5 +1,13 @@
 from preprocess import features
 import numpy as np
+import glob
+
+def one_hot_encode(label):
+    labels = np.zeros(5)
+    labels[label] = 1
+    print(labels)
+    return labels
+
 def get_data():
     """
     Recursively find and return path names of all audio files and their labels
@@ -9,23 +17,35 @@ def get_data():
     file path : label }
     """
     arr = np.loadtxt("/home/jacky/2kx/vybe/data/ESC-50-master/meta/esc50.csv",dtype=str,delimiter=',',skiprows=1)
-    return arr
-
-def get_wav(path):
-    """
-    check if pickle file with same name exists, else call features()
-    then pickle wav and return
-    """
-    pass
+    keydict = {}
+    for i in range(len(arr)):
+        key = 'data/ESC-50-master/audio/'+arr[i][0]
+        print(assign_num_to_label(arr[i][3]))
+        val = one_hot_encode(assign_num_to_label(arr[i][3]))
+        print(val)
+        keydict.update({key:val})
+    i = 0
+    return keydict,len(keydict)
 
 def assign_num_to_label(label):
     """
     Takes a string label and converts it to a number
-    e.g. Siren = 0
-         Alarm = 1
-         ...
+    ESC-50 Key
+    [0] Door Knock | ESC - 31
+    [1] Clock Alarm | ESC - 38
+    [2] Siren | ESC - 43, 8k - 7
+    [3] Car Horn | ESC - 44, 8k - 1
+    [4] Misc
     """
-    pass
+    if label == "door_wood_knock":
+        return 0
+    if label == "clock_alarm":
+        return 1
+    if label == "glass_breaking":
+        return 2
+    if label == "door_wood_knock":
+        return 3
+    return 4
 
 def next_minibatch(path_arr,batchsize):
     """
