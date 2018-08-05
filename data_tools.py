@@ -62,9 +62,13 @@ def next_minibatch(indices,db):
             print('Preloaded',z)
             feat.append(np.load('pickle/'+z+'.npy'))
         else:
-            ftrtmp=features(db.keys()[i], 13, parsePath=True)
-            feat.append(ftrtmp)
-            np.save('pickle/'+z,ftrtmp)
+            ftrtmp = np.empty((0,193))
+            mfccs, chroma, mel, contrast,tonnetz=features(db.keys()[i])
+            ext_mfccs = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
+            ftrtmp = np.vstack([ftrtmp,ext_mfccs])
+            np.save('pickle/'+z,ftrtmp[0])
+            feat.append(ftrtmp[0])
+            #print(np.asarray(feat).shape)
             print('Pickle saved to','pickle/'+z)
     # FEAT OUTPUT 501,26
     return np.asarray(feat),np.asarray(lab)

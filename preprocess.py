@@ -1,6 +1,6 @@
 # !/usr/local/bin/python
 
-def features(rawsnd, num, parsePath=False) :
+def features(rawsnd) :
     """Compute num amount of audio features of a sound
     Args:
         rawsnd : sound as array
@@ -12,15 +12,11 @@ def features(rawsnd, num, parsePath=False) :
     #start = time.time()
     import librosa
     import numpy as np
-    sample_rate=16000
-    if parsePath:
-        rawsnd, sample_rate = librosa.load(rawsnd, sr=16000)
-    ft = librosa.feature.mfcc(y=rawsnd, sr=sample_rate, n_mfcc=num, n_fft=int(sample_rate*0.025), hop_length=int(sample_rate*0.010))
-    ft[0] = librosa.feature.rmse(y=rawsnd, hop_length=int(0.010*sample_rate))
-    deltas = librosa.feature.delta(ft)
-    ft_plus_deltas = np.vstack([ft, deltas])
-    ft_plus_deltas /= np.max(np.abs(ft_plus_deltas),axis=0)
-    #print(ft_plus_deltas.T.shape)
-    #end = time.time()
-    #print(end - start)
-    return (ft_plus_deltas.T)
+    X, sample_rate = librosa.load(rawsnd)
+    stft = np.abs(librosa.stft(X))
+    mfccs = np.mean(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=40).T,axis=0)
+    chroma = np.mean(librosa.feature.chroma_stft(S=stft, sr=sample_rate).T,axis=0)
+    mel = np.mean(librosa.feature.melspectrogram(X, sr=sample_rate).T,axis=0)
+    contrast = np.mean(librosa.feature.spectral_contrast(S=stft, sr=sample_rate).T,axis=0)
+    tonnetz = np.mean(librosa.feature.tonnetz(y=librosa.effects.harmonic(X), sr=sample_rate).T,axis=0)
+    return mfccs,chroma,mel,contrast,tonnetz
