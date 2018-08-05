@@ -17,13 +17,16 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 config=tf.ConfigProto(allow_soft_placement=True)
 
 ### PARAMETERS ###
-batchsize = 4
+batchsize = 128
 num_classes = 5
-epochs = 250
-learning_rate = 1e-4
+epochs = 1000
+learning_rate = 0.001
 num_features = 193
 n_hidden_units_one = 256
 n_hidden_units_two = 512
+
+savepath = os.getcwd() + '/ckpt'
+
 
 ### NN Setup
 """
@@ -79,6 +82,7 @@ y_true, y_pred = None, None
 
 with tf.Session() as session:
     session.run(init)
+    saver = tf.train.Saver()
     for epoch in range(epochs):
         for batch in range(int(db_size / batchsize)):
             indices = get_indices(batchsize)
@@ -88,6 +92,8 @@ with tf.Session() as session:
             print("Cost: ",cost,"Accuracy: ",acc)
             cost_history = np.append(cost_history,cost)
             acc_history = np.append(acc_history,acc)
+        save_path = saver.save(session, savepath+'/model')
+        print(">>> Model saved succesfully")
 
 fig = plt.figure(figsize=(10,8))
 plt.plot(cost_history)
@@ -133,3 +139,7 @@ plt.show()
 #RNN Activations (Sigmoid)
 #Feedforward Activations
 #Thresholding
+
+imported_meta = tf.train.import_meta_graph("ckpt/model.meta")
+with tf.Session() as session:
+    imported_meta.restore(session, tf.train.latest_checkpoint('ckpt'))
