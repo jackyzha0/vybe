@@ -20,7 +20,7 @@ def features(rawsnd, num, parsePath=False) :
     deltas = librosa.feature.delta(ft)
     ft_plus_deltas = np.vstack([ft, deltas])
     ft_plus_deltas /= np.max(np.abs(ft_plus_deltas),axis=0)
-    print(ft_plus_deltas.T.shape)
+    #print(ft_plus_deltas.T.shape)
     #end = time.time()
     #print(end - start)
     return (ft_plus_deltas.T)
