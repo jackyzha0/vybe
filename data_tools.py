@@ -59,15 +59,18 @@ def next_minibatch(indices,db):
         z = db.keys()[i][25:-4]
         lab.append(db[db.keys()[i]])
         if os.path.exists('pickle/'+z+'.npy'):
-            print('Preloaded',z)
-            feat.append(np.load('pickle/'+z+'.npy'))
+            #print('Preloaded',z)
+            l = np.load('pickle/'+z+'.npy')
+            noise = np.random.normal(0, 0.1, l.shape)
+            feat.append(l+noise)
         else:
             ftrtmp = np.empty((0,193))
             mfccs, chroma, mel, contrast,tonnetz=features(db.keys()[i])
             ext_mfccs = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
             ftrtmp = np.vstack([ftrtmp,ext_mfccs])
             np.save('pickle/'+z,ftrtmp[0])
-            feat.append(ftrtmp[0])
+            noise = np.random.normal(0, 0.1, ftrtmp[0].shape)
+            feat.append(ftrtmp[0]+noise)
             #print(np.asarray(feat).shape)
             print('Pickle saved to','pickle/'+z)
     # FEAT OUTPUT 501,26

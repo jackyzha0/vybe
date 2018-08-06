@@ -19,11 +19,12 @@ config=tf.ConfigProto(allow_soft_placement=True)
 ### PARAMETERS ###
 batchsize = 128
 num_classes = 5
-epochs = 1000
-learning_rate = 0.001
+epochs = 250
+learning_rate = 0.01
 num_features = 193
-n_hidden_units_one = 256
-n_hidden_units_two = 512
+n_hidden_units_one = 64
+n_hidden_units_two = 128
+n_hidden_units_three = 256
 
 savepath = os.getcwd() + '/ckpt'
 
@@ -50,22 +51,26 @@ def get_indices(batchsize):
 
 ## Training Loop
 sd = 1/np.sqrt(num_features)
-X = tf.placeholder(tf.float32,[None, num_features])
-Y = tf.placeholder(tf.float32,[None, num_classes])
+with tf.name_scope('input'):
+    X = tf.placeholder(tf.float32,[None, num_features],name="x_inp")
+    Y = tf.placeholder(tf.float32,[None, num_classes],name="y_inp")
 
 W_1 = tf.Variable(tf.random_normal([ num_features,n_hidden_units_one], mean = 0, stddev=sd))
 b_1 = tf.Variable(tf.random_normal([n_hidden_units_one], mean = 0, stddev=sd))
 h_1 = tf.nn.tanh(tf.matmul(X,W_1) + b_1)
 
-
 W_2 = tf.Variable(tf.random_normal([n_hidden_units_one,n_hidden_units_two], mean = 0, stddev=sd))
 b_2 = tf.Variable(tf.random_normal([n_hidden_units_two], mean = 0, stddev=sd))
 h_2 = tf.nn.sigmoid(tf.matmul(h_1,W_2) + b_2)
 
+W_3 = tf.Variable(tf.random_normal([n_hidden_units_two,n_hidden_units_three], mean = 0, stddev=sd))
+b_3 = tf.Variable(tf.random_normal([n_hidden_units_three], mean = 0, stddev=sd))
+h_3 = tf.nn.sigmoid(tf.matmul(h_2,W_3) + b_3)
 
-W = tf.Variable(tf.random_normal([n_hidden_units_two, num_classes], mean = 0, stddev=sd))
-b = tf.Variable(tf.random_normal([ num_classes], mean = 0, stddev=sd))
-y_ = tf.nn.softmax(tf.matmul(h_2,W) + b)
+W = tf.Variable(tf.random_normal([n_hidden_units_three, num_classes], mean = 0, stddev=sd))
+b = tf.Variable(tf.random_normal([num_classes], mean = 0, stddev=sd))
+with tf.name_scope('out'):
+    y_ = tf.nn.softmax(tf.matmul(h_3,W) + b,name="out")
 
 init = tf.global_variables_initializer()
 
@@ -139,7 +144,3 @@ plt.show()
 #RNN Activations (Sigmoid)
 #Feedforward Activations
 #Thresholding
-
-imported_meta = tf.train.import_meta_graph("ckpt/model.meta")
-with tf.Session() as session:
-    imported_meta.restore(session, tf.train.latest_checkpoint('ckpt'))

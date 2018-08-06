@@ -1,6 +1,6 @@
 # !/usr/local/bin/python
 
-def features(rawsnd) :
+def features(rawsnd,raw=False) :
     """Compute num amount of audio features of a sound
     Args:
         rawsnd : sound as array
@@ -12,7 +12,10 @@ def features(rawsnd) :
     #start = time.time()
     import librosa
     import numpy as np
-    X, sample_rate = librosa.load(rawsnd)
+    if not raw:
+        X, sample_rate = librosa.load(rawsnd)
+    else:
+        X, sample_rate = (rawsnd,16000)
     stft = np.abs(librosa.stft(X))
     mfccs = np.mean(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=40).T,axis=0)
     chroma = np.mean(librosa.feature.chroma_stft(S=stft, sr=sample_rate).T,axis=0)
