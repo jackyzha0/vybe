@@ -19,12 +19,12 @@ config=tf.ConfigProto(allow_soft_placement=True)
 ### PARAMETERS ###
 batchsize = 128
 num_classes = 5
-epochs = 250
-learning_rate = 0.01
+epochs = 1200
+learning_rate = 0.005
 num_features = 193
-n_hidden_units_one = 64
-n_hidden_units_two = 128
-n_hidden_units_three = 256
+n_hidden_units_one = 256
+n_hidden_units_two = 512
+n_hidden_units_three = 1024
 
 savepath = os.getcwd() + '/ckpt'
 
@@ -35,7 +35,9 @@ Input Dims: 26 (features) x 501 (time length)
 Output Dims: (num classes)
 """
 
-db,db_size = data_tools.get_data()
+db,db_size,occ = data_tools.get_data()
+t_db,t_db_size,_ = data_tools.get_data(test=True)
+print(t_db_size)
 
 index = np.arange(db_size)
 np.random.shuffle(index)
@@ -49,6 +51,11 @@ def get_indices(batchsize):
     index = index[:-batchsize].copy()
     return ret
 
+def t_get_indices(batchsize):
+    index = np.arange(batchsize)
+    np.random.shuffle(index)
+    return index
+
 ## Training Loop
 sd = 1/np.sqrt(num_features)
 with tf.name_scope('input'):
@@ -61,7 +68,7 @@ h_1 = tf.nn.tanh(tf.matmul(X,W_1) + b_1)
 
 W_2 = tf.Variable(tf.random_normal([n_hidden_units_one,n_hidden_units_two], mean = 0, stddev=sd))
 b_2 = tf.Variable(tf.random_normal([n_hidden_units_two], mean = 0, stddev=sd))
-h_2 = tf.nn.sigmoid(tf.matmul(h_1,W_2) + b_2)
+h_2 = tf.nn.tanh(tf.matmul(h_1,W_2) + b_2)
 
 W_3 = tf.Variable(tf.random_normal([n_hidden_units_two,n_hidden_units_three], mean = 0, stddev=sd))
 b_3 = tf.Variable(tf.random_normal([n_hidden_units_three], mean = 0, stddev=sd))
@@ -83,6 +90,8 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 cost_history = np.empty(shape=[1],dtype=float)
 acc_history = np.empty(shape=[1],dtype=float)
+t_cost_history = np.empty(shape=[1],dtype=float)
+t_acc_history = np.empty(shape=[1],dtype=float)
 y_true, y_pred = None, None
 
 with tf.Session() as session:
@@ -97,6 +106,13 @@ with tf.Session() as session:
             print("Cost: ",cost,"Accuracy: ",acc)
             cost_history = np.append(cost_history,cost)
             acc_history = np.append(acc_history,acc)
+        t_indices = t_get_indices(64)
+        t_feed = data_tools.next_minibatch(t_indices,t_db)
+        _,t_cost,t_acc = session.run([optimizer,cost_function,accuracy],feed_dict={X: t_feed[0], Y: t_feed[1]})
+        print("Test Cost: ",t_cost,"Test Accuracy: ",t_acc)
+        t_cost_history = np.append(t_cost_history,t_cost)
+        t_acc_history = np.append(t_acc_history,t_acc)
+
         save_path = saver.save(session, savepath+'/model')
         print(">>> Model saved succesfully")
 
@@ -111,6 +127,19 @@ plt.plot(acc_history)
 plt.ylabel("Accuracy")
 plt.xlabel("Epochs")
 plt.axis([1,epochs,0,np.max(acc_history)])
+plt.show()
+
+fig = plt.figure(figsize=(10,8))
+plt.plot(t_cost_history)
+plt.ylabel("Test Cost")
+plt.xlabel("Epochs")
+plt.axis([1,epochs,0,np.max(t_cost_history)])
+plt.show()
+
+plt.plot(t_acc_history)
+plt.ylabel("Test Accuracy")
+plt.xlabel("Epochs")
+plt.axis([1,epochs,0,np.max(t_acc_history)])
 plt.show()
 
     # for itr in range(training_iterations):
