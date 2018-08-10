@@ -7,8 +7,6 @@ import numpy as np
 print('[OK] numpy ')
 import os
 import data_tools
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import specgram
 print('[OK] os ')
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -116,31 +114,31 @@ with tf.Session() as session:
         save_path = saver.save(session, savepath+'/model')
         print(">>> Model saved succesfully")
 
-fig = plt.figure(figsize=(10,8))
-plt.plot(cost_history)
-plt.ylabel("Cost")
-plt.xlabel("Epochs")
-plt.axis([1,epochs,0,np.max(cost_history)])
-plt.show()
-
-plt.plot(acc_history)
-plt.ylabel("Accuracy")
-plt.xlabel("Epochs")
-plt.axis([1,epochs,0,np.max(acc_history)])
-plt.show()
-
-fig = plt.figure(figsize=(10,8))
-plt.plot(t_cost_history)
-plt.ylabel("Test Cost")
-plt.xlabel("Epochs")
-plt.axis([1,epochs,0,np.max(t_cost_history)])
-plt.show()
-
-plt.plot(t_acc_history)
-plt.ylabel("Test Accuracy")
-plt.xlabel("Epochs")
-plt.axis([1,epochs,0,np.max(t_acc_history)])
-plt.show()
+# fig = plt.figure(figsize=(10,8))
+# plt.plot(cost_history)
+# plt.ylabel("Cost")
+# plt.xlabel("Epochs")
+# plt.axis([1,epochs,0,np.max(cost_history)])
+# plt.show()
+#
+# plt.plot(acc_history)
+# plt.ylabel("Accuracy")
+# plt.xlabel("Epochs")
+# plt.axis([1,epochs,0,np.max(acc_history)])
+# plt.show()
+#
+# fig = plt.figure(figsize=(10,8))
+# plt.plot(t_cost_history)
+# plt.ylabel("Test Cost")
+# plt.xlabel("Epochs")
+# plt.axis([1,epochs,0,np.max(t_cost_history)])
+# plt.show()
+#
+# plt.plot(t_acc_history)
+# plt.ylabel("Test Accuracy")
+# plt.xlabel("Epochs")
+# plt.axis([1,epochs,0,np.max(t_acc_history)])
+# plt.show()
 
     # for itr in range(training_iterations):
     #     offset = (itr * batch_size) % (train_y.shape[0] - batch_size)

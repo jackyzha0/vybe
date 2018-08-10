@@ -2,11 +2,8 @@ import pyaudio
 import time
 import Queue
 import numpy as np
-#from matplotlib import pyplot as plt
-import matplotlib.pyplot as plt
-import scipy.signal as signal
 import librosa.display
-import sugartensor as tf
+import tensorflow as tf
 from preprocess import features
 
 print('import ok')
